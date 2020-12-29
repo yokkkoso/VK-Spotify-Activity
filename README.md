@@ -1,7 +1,7 @@
 # VK-Spotify-Activity
 Changes your VK status to your current playing song in Spotify
 
-#RU
+# RU
 1. Для начало тебе нужно будет установить Node.js (LTS версии) - https://nodejs.org/
 
 
@@ -41,5 +41,5 @@ Changes your VK status to your current playing song in Spotify
 
 6. Теперь нужен токен твоей ВК страницы. Тут все легко. Заходишь на сайт https://vkhost.github.io, выбираешь любое приложение, разрешаешь ему доступ к аккаунту (Я юзаю VK Admin). И опять копируешь с URL страницы все, что находится между `access_token=` и `&expires_in`. И вставляешь access_token в **.env** в строчку `VK_ACCESS_TOKEN`
 
-###И окончательно ебля закончена.
+### И окончательно ебля закончена.
 Но, если ты зрячий чел, то ты мог заметить в **.env** строчку `DEFAULT_STATUS`. В нее ты можешь ввести все, что пожилаешь, это будет твоим статусом, когда в Spotify не будет играть песенка (Но до 140 символов)
