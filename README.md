@@ -9,6 +9,8 @@
 
 `git clone https://github.com/yokkkoso/VK-Spotify-Activity.git`
 
+`cd VK-Spotify-Activity`
+
 `npm install`
 
 2. Зарегистрировать приложение на https://developer.spotify.com/dashboard/
