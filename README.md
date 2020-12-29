@@ -38,7 +38,7 @@
     4. Очень быстро открываете cmd созданной папки 2 шага и пишите следующее `npm run get-refresh-token <ТВОЙ ПОЛУЧЕННЫЙ КОД>`
     5. Если 4 шаг прошел успешно, вы увидите в cmd следующий текст:
     ![Refresh Token](https://sun9-4.userapi.com/impg/KEQwuWeZvDEPGxnamsWa2-HdFcSfDx4lqfTS8w/elaM0yBkoGg.jpg?size=1159x124&quality=96&proxy=1&sign=42355920320008451220218b2ec1e740&type=album)
-    Копируете полученный refresh token в файл **.env** в строчку `SPOTIFY_REFRESH_TOKEN` и вуаля, ебля с Refresh Token закончена.
+    Копируете полученный refresh token в файл **.env** в строчку `SPOTIFY_REFRESH_TOKEN` и вуаля, херота с Refresh Token закончена.
 
 
 6. Теперь нужен токен твоей ВК страницы. Тут все легко. Заходишь на сайт https://vkhost.github.io, выбираешь любое приложение, разрешаешь ему доступ к аккаунту (Я юзаю VK Admin). И опять копируешь с URL страницы все, что находится между `access_token=` и `&expires_in`. И вставляешь access_token в **.env** в строчку `VK_ACCESS_TOKEN`
