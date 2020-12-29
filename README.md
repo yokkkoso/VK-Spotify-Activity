@@ -1,7 +1,7 @@
 # VK-Spotify-Activity
-Changes your VK status to your current playing song in Spotify
+Интеграция Spotify в статус VK
 
-# RU
+# Установка
 1. Для начало тебе нужно будет установить Node.js (LTS версии) - https://nodejs.org/
 
 
