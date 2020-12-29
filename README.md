@@ -1,4 +1,4 @@
-# VK-Spotify-Activity
+# VK-Spotify-Integration
 Интеграция Spotify в статус VK
 
 # Установка
