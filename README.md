@@ -28,7 +28,7 @@
 
 И добавить в файл **.env** в строчки `SPOTIFY_CLIENT_ID` скопированный Client ID, а в `SPOTIFY_CLIENT_SECRET` скопированный Client Secret (*Пояснение для тупых*).
 
-5. Для получения Refresh Token`а нам придется слегка поебаться. А именно:
+5. Для получения Refresh Token'а нам придется слегка похерачиться. А именно:
     1. Перейти по ссылке, изменя значения на твои:`https://accounts.spotify.com/authorize?client_id=<ТВОЙ CLIENT ID>&response_type=code&redirect_uri=<ТВОЙ REDIRECT URI>&scope=user-read-private%20user-read-currently-playing`
     2. Если вы ввели все верно у вас откроется вот такая страничка:
     ![Refresh Token ](https://sun9-56.userapi.com/impg/YeTrzqCRaTTJVRRu3uwDhF8v-n4xCmg6nrx5Jw/HP9CgiIgjBw.jpg?size=1918x979&quality=96&proxy=1&sign=9d4eb0996013dc14e049f48057214363&type=album)
@@ -43,8 +43,8 @@
 
 6. Теперь нужен токен твоей ВК страницы. Тут все легко. Заходишь на сайт https://vkhost.github.io, выбираешь любое приложение, разрешаешь ему доступ к аккаунту (Я юзаю VK Admin). И опять копируешь с URL страницы все, что находится между `access_token=` и `&expires_in`. И вставляешь access_token в **.env** в строчку `VK_ACCESS_TOKEN`
 
-### И окончательно ебля закончена.
-Но, если ты зрячий чел, то ты мог заметить в **.env** строчку `DEFAULT_STATUS`. В нее ты можешь ввести все, что пожилаешь, это будет твоим статусом, когда в Spotify не будет играть песенка (Но до 140 символов)
+### И окончательно настройка закончена.
+Но, если ты зрячий чел, то ты мог заметить в **.env** строчку `DEFAULT_STATUS`. В нее ты можешь ввести все, что пожелаешь, это будет твоим статусом, когда в Spotify не будет играть песенка (Но до 140 символов)
 
 # Запуск
 Для запуска статуса необходимо лишь в cmd папки написать `node index.js`
