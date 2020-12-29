@@ -1,0 +1,17 @@
+{
+  "name": "vk-spotify-activity",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "yokkkoso",
+  "license": "MIT",
+  "scripts": {
+    "get-refresh-token": "node get-refresh-token.js"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "dotenv": "^8.2.0",
+    "easyvk": "^2.8.2",
+    "readline": "^1.3.0"
+  }
+}
