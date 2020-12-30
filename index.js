@@ -1,6 +1,5 @@
 const easyvk = require("easyvk");
 const axios = require("axios");
-const readline = require("readline");
 
 require("dotenv").config()
 
@@ -41,7 +40,10 @@ async function getNewAccessTokenFromRefreshToken(){
         params
     });
 
-return {access_token:response["data"].access_token, expires_in:response["data"].expires_in}
+return {
+    access_token: response["data"].access_token,
+    expires_in: response["data"].expires_in
+};
 
 }
 async function getCurrentlyPlayingSong() {
@@ -56,6 +58,43 @@ async function getCurrentlyPlayingSong() {
     return response["data"]
 }
 
+const captchaHandler = ({ captcha_img, resolve: solve, vk}) => {
+
+    captchaNeeded = true;
+
+    vk.call("messages.send", {
+        message: 'Введи капчу с картинки: ' + captcha_img,
+        user_id: vk.session.user_id,
+        random_id: easyvk.randomId()
+    });
+
+    console.log('Зайди в диалог с самим собой в ВК и введи капчу.')
+
+    vk.longpoll.connect({}).then((connection) => {
+
+        connection.on("message", (msg) => {
+
+            const author = msg[3];
+            const key = msg[5];
+
+            if(author === vk.session.user_id) {
+                solve(key).then(() => {
+
+                    console.log('Капча решена корректно!')
+                    captchaNeeded = false;
+                    connection.close();
+
+                }).catch(({ reCall: tryNewCall}) => {
+
+                    console.log('Капче не решена!!!\nПробуем занова')
+
+                    tryNewCall()
+                });
+            }
+        });
+    });
+
+}
 
 changeStatus()
 
@@ -88,35 +127,6 @@ function changeStatus(){
                 }
             }, 60000)
 
-            const captchaHandler = ({ captcha_img, resolve: solve, vk}) => {
-
-                const rl1 = readline.createInterface({
-                    input: process.stdin,
-                    output: process.stdout
-                });
-
-                rl1.question(`Введите капчу для картинки ${captcha_img} `, (key) => {
-
-                    captchaNeeded = true
-
-                    vk.call("messages.send", {
-                        message: 'Введи капчу в консоль' + captcha_img,
-                        user_id: vk.session.user_id,
-                        random_id: easyvk.randomId()
-                    })
-
-                    solve(key).then(() => {
-                        console.log('Капча решена корректно!')
-                        captchaNeeded = false
-                    }).catch(({ reCall: tryNewCall}) => {
-                        console.log('Капче не решена!!!\nПробуем занова')
-
-                        tryNewCall()
-                    })
-
-                })
-
-            }
             setInterval(function () {
                 if (captchaNeeded) return
 
@@ -130,12 +140,11 @@ function changeStatus(){
                                 if (data.item) {
                                     let statusText = `${data["is_playing"] ? '⏸' : '▶️'} Слушаю в Spotify: ${getCommas(data.item["artists"])} - ${data.item.name} [${millisToMinutesAndSeconds(data["progress_ms"])} / ${millisToMinutesAndSeconds(data.item["duration_ms"])}]`
                                     if (status.text === statusText) return;
-                                    console.log(statusText)
 
                                     vk.call("status.set", {
                                         text: statusText
                                     }).then(() => {
-
+                                        console.log(statusText)
                                         console.log('Статус успешно установлен!')
 
                                     }).catch(error => {
@@ -149,11 +158,10 @@ function changeStatus(){
                                     let defaultStatus = process.env.DEFAULT_STATUS || '';
 
                                     if (status.text === defaultStatus) return;
-                                    console.log(defaultStatus)
                                     vk.call("status.set", {
                                         text: defaultStatus
                                     }).then(() => {
-
+                                        console.log(defaultStatus)
                                         console.log('Статус успешно установлен!')
 
                                     }).catch(error => {
