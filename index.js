@@ -1,13 +1,12 @@
 const easyvk = require("easyvk");
 const axios = require("axios");
-
 require("dotenv").config()
 
-let accessToken;
 let captchaNeeded = false;
-let tokenExpirationEpoch;
+let accessToken;
+let tokenExpiration;
 
-function getCommas(array){
+function getCommas (array) {
     let string = '';
     for(let index = 0; index < array.length; index++){
         if(index === array.length-1){
@@ -20,13 +19,13 @@ function getCommas(array){
     return string;
 }
 
-function millisToMinutesAndSeconds(millis) {
+function millisToMinutesAndSeconds (millis) {
     const minutes = Math.floor(millis / 60000);
     const seconds = ((millis % 60000) / 1000).toFixed(0);
     return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
 }
 
-async function getNewAccessTokenFromRefreshToken(){
+async function getNewAccessTokenFromRefreshToken () {
     const params = new URLSearchParams();
 
     params.append('client_id', process.env.SPOTIFY_CLIENT_ID)
@@ -46,7 +45,7 @@ return {
 };
 
 }
-async function getCurrentlyPlayingSong() {
+async function getCurrentlyPlayingSong () {
     const response = await axios({
         url: 'https://api.spotify.com/v1/me/player/currently-playing',
         method: 'GET',
@@ -70,7 +69,7 @@ const captchaHandler = ({ captcha_img, resolve: solve, vk}) => {
 
     console.log('Зайди в диалог с самим собой в ВК и введи капчу.')
 
-    vk.longpoll.connect({}).then((connection) => {
+    vk["longpoll"].connect({}).then((connection) => {
 
         connection.on("message", (msg) => {
 
@@ -111,16 +110,16 @@ function changeStatus(){
         .then(function(data) {
         accessToken = data['access_token'];
 
-            tokenExpirationEpoch = new Date().getTime() / 1000 + data['expires_in'];
-            console.log('Токен получен. Он сбрасывается через ' + Math.floor(tokenExpirationEpoch - new Date().getTime() / 1000) + ' секунд!');
+            tokenExpiration = new Date().getTime() / 1000 + data['expires_in'];
+            console.log('Токен получен. Он сбрасывается через ' + Math.floor(tokenExpiration - new Date().getTime() / 1000) + ' секунд!');
 
             setInterval(function () {
-                if ((tokenExpirationEpoch - new Date().getTime() / 1000) <= 600) {
+                if ((tokenExpiration - new Date().getTime() / 1000) <= 600) {
 
                     getNewAccessTokenFromRefreshToken().then(function(data ){
-                            tokenExpirationEpoch =
+                        tokenExpiration =
                                 new Date().getTime() / 1000 + data['expires_in'];
-                            console.log('Токен обновлен. Он сбрасывается через ' + Math.floor(tokenExpirationEpoch - new Date().getTime() / 1000) + ' секунд!');
+                            console.log('Токен обновлен. Он сбрасывается через ' + Math.floor(tokenExpiration - new Date().getTime() / 1000) + ' секунд!');
                         accessToken = data['access_token'];
                         }
                     );
@@ -132,13 +131,14 @@ function changeStatus(){
 
                  getCurrentlyPlayingSong()
                     .then(function (data) {
+                        console.log(data.item)
                         easyvk({
                             captchaHandler,
                             token: process.env.VK_ACCESS_TOKEN
                         }).then(vk => {
                             vk.call("status.get").then(status => {
                                 if (data.item) {
-                                    let statusText = `${data["is_playing"] ? '⏸' : '▶️'} Слушаю в Spotify: ${getCommas(data.item["artists"])} - ${data.item.name} [${millisToMinutesAndSeconds(data["progress_ms"])} / ${millisToMinutesAndSeconds(data.item["duration_ms"])}]`
+                                    let statusText = `${data["is_playing"] ? '⏸' : '▶️'} Слушаю в Spotify: ${getCommas(data.item["artists"])} - ${data.item.name}${data.item["explicit"]? "🅴" :""} [${millisToMinutesAndSeconds(data["progress_ms"])} / ${millisToMinutesAndSeconds(data.item["duration_ms"])}]`
                                     if (status.text === statusText) return;
 
                                     vk.call("status.set", {
@@ -178,7 +178,7 @@ function changeStatus(){
                     }, function (err) {
                         console.log('Something went wrong!', err);
                     });
-            }, 30000)
+            }, 5000)
 
         })
 }
