@@ -131,7 +131,6 @@ function changeStatus(){
 
                  getCurrentlyPlayingSong()
                     .then(function (data) {
-                        console.log(data.item)
                         easyvk({
                             captchaHandler,
                             token: process.env.VK_ACCESS_TOKEN
@@ -178,7 +177,7 @@ function changeStatus(){
                     }, function (err) {
                         console.log('Something went wrong!', err);
                     });
-            }, 5000)
+            }, 30000)
 
         })
 }
