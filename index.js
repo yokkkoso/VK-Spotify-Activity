@@ -70,7 +70,7 @@ const captchaHandler = ({ captcha_img, resolve: solve, vk}) => {
 
     console.log('Зайди в диалог с самим собой в ВК и введи капчу.')
 
-    vk.longpoll.connect({}).then((connection) => {
+    vk["longpoll"].connect({}).then((connection) => {
 
         connection.on("message", (msg) => {
 
@@ -95,10 +95,38 @@ const captchaHandler = ({ captcha_img, resolve: solve, vk}) => {
     });
 
 }
+easyvk({
+    captchaHandler,
+    token: process.env.VK_ACCESS_TOKEN
+}).then(vk => {
+    vk["longpoll"].connect({}).then((connection) => {
+        connection.on("message", (msg) => {
 
-changeStatus()
+            const author = msg[3];
+            const text = msg[5].split(' ');
 
-function changeStatus(){
+            if(author === vk.session.user_id) {
+                if(text && text[0]==='/status'){
+                    const statusText = text.slice(1).join(' ');
+                    if(statusText.length > 140) {
+                        return vk.call("messages.send", {
+                            message: '❌ Длина статуса не может быть больше 140 символов!',
+                            user_id: vk.session.user_id,
+                            random_id: easyvk.randomId()
+                        });
+                    }
+                    process.env['DEFAULT_STATUS'] = statusText || '';
+                    vk.call("messages.send", {
+                        message: '✅ Новый стандартный статус изменен на: ' + statusText || 'Ничего',
+                        user_id: vk.session.user_id,
+                        random_id: easyvk.randomId()
+                    });
+                }
+            }
+        });
+    });
+});
+
     if(!process.env.SPOTIFY_CLIENT_SECRET || !process.env.SPOTIFY_CLIENT_ID || !process.env.SPOTIFY_REDIRECT_URI || !process.env.SPOTIFY_REFRESH_TOKEN || !process.env.VK_ACCESS_TOKEN) {
         console.log('Ты это, проверь .env, ты какую-то хуйню не указал.');
         process.exit(0);
@@ -109,7 +137,7 @@ function changeStatus(){
     }
     getNewAccessTokenFromRefreshToken()
         .then(function(data) {
-        accessToken = data['access_token'];
+            accessToken = data['access_token'];
 
             tokenExpirationEpoch = new Date().getTime() / 1000 + data['expires_in'];
             console.log('Токен получен. Он сбрасывается через ' + Math.floor(tokenExpirationEpoch - new Date().getTime() / 1000) + ' секунд!');
@@ -117,20 +145,20 @@ function changeStatus(){
             setInterval(function () {
                 if ((tokenExpirationEpoch - new Date().getTime() / 1000) <= 600) {
 
-                    getNewAccessTokenFromRefreshToken().then(function(data ){
+                    getNewAccessTokenFromRefreshToken().then(function (data) {
                             tokenExpirationEpoch =
                                 new Date().getTime() / 1000 + data['expires_in'];
                             console.log('Токен обновлен. Он сбрасывается через ' + Math.floor(tokenExpirationEpoch - new Date().getTime() / 1000) + ' секунд!');
-                        accessToken = data['access_token'];
+                            accessToken = data['access_token'];
                         }
                     );
                 }
             }, 60000)
-
+        })
             setInterval(function () {
                 if (captchaNeeded) return
 
-                 getCurrentlyPlayingSong()
+                getCurrentlyPlayingSong()
                     .then(function (data) {
                         easyvk({
                             captchaHandler,
@@ -179,6 +207,3 @@ function changeStatus(){
                         console.log('Something went wrong!', err);
                     });
             }, 30000)
-
-        })
-}
