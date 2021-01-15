@@ -1,6 +1,5 @@
 const easyvk = require("easyvk");
 const axios = require("axios");
-
 require("dotenv").config()
 
 let accessToken;
@@ -70,7 +69,7 @@ const captchaHandler = ({ captcha_img, resolve: solve, vk}) => {
 
     console.log('Зайди в диалог с самим собой в ВК и введи капчу.')
 
-    vk.longpoll.connect({}).then((connection) => {
+    vk["longpoll"].connect({}).then((connection) => {
 
         connection.on("message", (msg) => {
 
@@ -96,20 +95,43 @@ const captchaHandler = ({ captcha_img, resolve: solve, vk}) => {
 
 }
 
-changeStatus()
+if (!process.env.SPOTIFY_CLIENT_SECRET || !process.env.SPOTIFY_CLIENT_ID || !process.env.SPOTIFY_REDIRECT_URI || !process.env.SPOTIFY_REFRESH_TOKEN || !process.env.VK_ACCESS_TOKEN) {
+    console.log('Ты это, проверь .env, ты какую-то хрень не указал.');
+    process.exit(0);
+}
+if (process.env.DEFAULT_STATUS && process.env.DEFAULT_STATUS.length > 140) {
+    console.log('Текст стандартного статуса (DEFAULT_STATUS) больше 140 символов, сорян, это не я придумал, а ВК');
+    process.exit(0);
+}
 
-function changeStatus(){
-    if(!process.env.SPOTIFY_CLIENT_SECRET || !process.env.SPOTIFY_CLIENT_ID || !process.env.SPOTIFY_REDIRECT_URI || !process.env.SPOTIFY_REFRESH_TOKEN || !process.env.VK_ACCESS_TOKEN) {
-        console.log('Ты это, проверь .env, ты какую-то хуйню не указал.');
-        process.exit(0);
-    }
-    if(process.env.DEFAULT_STATUS && process.env.DEFAULT_STATUS.length > 140) {
-        console.log('Текст стандартного статуса (DEFAULT_STATUS) больше 140 символов, сорян, это не я придумал, а ВК');
-        process.exit(0);
-    }
+easyvk({
+    captchaHandler,
+    token: process.env.VK_ACCESS_TOKEN
+}).then(vk => {
+    vk["longpoll"].connect({}).then((connection) => {
+        connection.on("message", (msg) => {
+
+            const author = msg[3];
+            const text = msg[5].split(' ');
+
+            if (author === vk.session.user_id) {
+                if (text && text[0] === '/status') {
+                    let statusText = text.slice(1).join(' ');
+                    process.env['DEFAULT_STATUS'] = statusText || '';
+                    vk.call("messages.send", {
+                        message: '✅ Новый стандартный статус изменен на: ' + statusText || 'Ничего',
+                        user_id: vk.session.user_id,
+                        random_id: easyvk.randomId()
+                    });
+                }
+            }
+        });
+    });
+});
+
     getNewAccessTokenFromRefreshToken()
-        .then(function(data) {
-        accessToken = data['access_token'];
+        .then(function (data) {
+            accessToken = data['access_token'];
 
             tokenExpirationEpoch = new Date().getTime() / 1000 + data['expires_in'];
             console.log('Токен получен. Он сбрасывается через ' + Math.floor(tokenExpirationEpoch - new Date().getTime() / 1000) + ' секунд!');
@@ -117,25 +139,26 @@ function changeStatus(){
             setInterval(function () {
                 if ((tokenExpirationEpoch - new Date().getTime() / 1000) <= 600) {
 
-                    getNewAccessTokenFromRefreshToken().then(function(data ){
+                    getNewAccessTokenFromRefreshToken().then(function (data) {
                             tokenExpirationEpoch =
                                 new Date().getTime() / 1000 + data['expires_in'];
                             console.log('Токен обновлен. Он сбрасывается через ' + Math.floor(tokenExpirationEpoch - new Date().getTime() / 1000) + ' секунд!');
-                        accessToken = data['access_token'];
+                            accessToken = data['access_token'];
                         }
                     );
                 }
             }, 60000)
+        });
 
             setInterval(function () {
                 if (captchaNeeded) return
 
-                 getCurrentlyPlayingSong()
-                    .then(function (data) {
-                        easyvk({
-                            captchaHandler,
-                            token: process.env.VK_ACCESS_TOKEN
-                        }).then(vk => {
+                    getCurrentlyPlayingSong()
+                        .then(function (data) {
+                            easyvk({
+                                captchaHandler,
+                                token: process.env.VK_ACCESS_TOKEN
+                            }).then(vk => {
                             vk.call("status.get").then(status => {
                                 if (data.item) {
                                     let statusText = `${data["is_playing"] ? '⏸' : '▶️'} Слушаю в Spotify: ${getCommas(data.item["artists"])} - ${data.item.name} [${millisToMinutesAndSeconds(data["progress_ms"])} / ${millisToMinutesAndSeconds(data.item["duration_ms"])}]`
@@ -175,10 +198,7 @@ function changeStatus(){
                                 }
                             })
                         })
-                    }, function (err) {
-                        console.log('Something went wrong!', err);
-                    });
-            }, 30000)
-
-        })
-}
+            }, function (err) {
+                console.log('Something went wrong!', err);
+            });
+        }, 30000)
