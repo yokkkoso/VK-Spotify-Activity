@@ -5,6 +5,7 @@ require("dotenv").config()
 
 let accessToken;
 let captchaNeeded = false;
+let statusToggle = true;
 let tokenExpirationEpoch;
 
 function getCommas(array){
@@ -106,21 +107,48 @@ easyvk({
             const text = msg[5].split(' ');
 
             if(author === vk.session.user_id) {
-                if(text && text[0]==='/status'){
-                    const statusText = text.slice(1).join(' ');
-                    if(statusText.length > 140) {
-                        return vk.call("messages.send", {
-                            message: '❌ Длина статуса не может быть больше 140 символов!',
+                if(text && text[0]==='/status') {
+                    if (text[1] && text[1] === 'set') {
+                        const statusText = text.slice(2).join(' ');
+                        if (statusText.length > 140) {
+                            return vk.call("messages.send", {
+                                message: '❌ Длина статуса не может быть больше 140 символов!',
+                                user_id: vk.session.user_id,
+                                random_id: easyvk.randomId()
+                            });
+                        }
+                        process.env['DEFAULT_STATUS'] = statusText || '';
+                        vk.call("messages.send", {
+                            message: '✅ Новый стандартный статус изменен на: ' + statusText || 'Ничего',
                             user_id: vk.session.user_id,
                             random_id: easyvk.randomId()
                         });
                     }
-                    process.env['DEFAULT_STATUS'] = statusText || '';
-                    vk.call("messages.send", {
-                        message: '✅ Новый стандартный статус изменен на: ' + statusText || 'Ничего',
-                        user_id: vk.session.user_id,
-                        random_id: easyvk.randomId()
-                    });
+                    if(text[1] && text[1] === 'toggle'){
+                        if(statusToggle){
+                            statusToggle = false;
+                            vk.call("messages.send", {
+                                message: '✅ Расширенный статус ВЫКЛЮЧЕН!',
+                                user_id: vk.session.user_id,
+                                random_id: easyvk.randomId()
+                            });
+                            vk.call("status.get").then(status => {
+                                if(status.text !== process.env.DEFAULT_STATUS){
+                                    let defaultStatus = process.env.DEFAULT_STATUS || '';
+                                    vk.call("status.set", {
+                                        text: defaultStatus
+                                    })
+                                }
+                            })
+                        } else {
+                            statusToggle = true;
+                            vk.call("messages.send", {
+                                message: '✅ Расширенный статус ВКЛЮЧЕН!',
+                                user_id: vk.session.user_id,
+                                random_id: easyvk.randomId()
+                            });
+                        }
+                    }
                 }
             }
         });
@@ -156,8 +184,7 @@ easyvk({
             }, 60000)
         })
             setInterval(function () {
-                if (captchaNeeded) return
-
+                if (captchaNeeded || !statusToggle) return
                 getCurrentlyPlayingSong()
                     .then(function (data) {
                         easyvk({
