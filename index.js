@@ -233,4 +233,4 @@ easyvk({
                     }, function (err) {
                         console.log('Something went wrong!', err);
                     });
-            }, 30000)
+            }, 45000)
