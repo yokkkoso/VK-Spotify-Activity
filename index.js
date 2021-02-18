@@ -3,10 +3,10 @@ const axios = require("axios");
 
 require("dotenv").config()
 
-let accessToken;
-let captchaNeeded = false;
-let statusToggle = true;
-let tokenExpirationEpoch;
+let accessToken,
+captchaNeeded = false,
+statusToggle = true,
+tokenExpirationEpoch;
 
 function getCommas(array){
     let string = '';
@@ -233,4 +233,4 @@ easyvk({
                     }, function (err) {
                         console.log('Something went wrong!', err);
                     });
-            }, 45000)
+            }, 60000)
