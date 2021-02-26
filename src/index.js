@@ -9,7 +9,7 @@ captchaNeeded = false,
 statusToggle = true,
 tokenExpirationEpoch;
 
-function getCommas(array) {
+function getCommas(array, comma) {
     let string = '';
     for (let index = 0; index < array.length; index++) {
         if (index === array.length - 1) {
@@ -17,14 +17,14 @@ function getCommas(array) {
             string += `${poped.name}`;
             return string;
         }
-        string += `${array[index].name}, `;
+        string += `${array[index].name}${comma} `;
     }
     return string;
 }
 
-function millisToMinutesAndSeconds(millis) {
-    const minutes = Math.floor(millis / 60000);
-    const seconds = ((millis % 60000) / 1000).toFixed(0);
+function msToMinutesAndSeconds(ms) {
+    const minutes = Math.floor(ms / 60000);
+    const seconds = ((ms % 60000) / 1000).toFixed(0);
     return `${minutes }:${ seconds < 10 ? '0' : '' }${seconds}`;
 }
 
@@ -55,7 +55,7 @@ async function getCurrentlyPlayingSong() {
         }
     }).then(res => res.json());
 
-    return response['data'];
+    return response;
 }
 
 const captchaHandler = ({ captcha_img, resolve: solve, vk}) => {
@@ -192,7 +192,7 @@ easyvk({
                         }).then(vk => {
                             vk.call('status.get').then(status => {
                                 if (data.item) {
-                                    const statusText = `${data['is_playing'] ? '⏸' : '▶️'} Слушаю в Spotify: ${getCommas(data.item['artists'])} - ${data.item.name} [${millisToMinutesAndSeconds(data['progress_ms'])} / ${millisToMinutesAndSeconds(data.item['duration_ms'])}]`;
+                                    const statusText = `${data['is_playing'] ? '⏸' : '▶️'} Слушаю в Spotify: ${getCommas(data.item['artists'], ', ')} - ${data.item.name} [${msToMinutesAndSeconds(data['progress_ms'])} / ${msToMinutesAndSeconds(data.item['duration_ms'])}]`;
                                     if (status.text === statusText) return;
 
                                     vk.call('status.set', {
