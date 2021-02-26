@@ -1,0 +1,74 @@
+{
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "ecmaVersion": 2020
+    },
+    "env": {
+        "es2020": true,
+        "node": true
+    },
+    "rules": {
+       "valid-jsdoc": [
+           "error",
+           {
+              "requireParamDescription": false,
+              "requireReturnDescription": false,
+              "prefer": {
+                  "return": "returns",
+                  "arg": "param"
+              },
+              "preferType": {
+                  "String": "string",
+                  "Number": "number",
+                  "Boolean": "boolean",
+                  "Symbol": "symbol",
+                  "object": "Object",
+                  "function": "Function",
+                  "array": "Array",
+                  "date": "Date",
+                  "error": "Error",
+                  "null": "void"
+              }
+           }
+      ],
+      "eqeqeq": [
+          "error",
+          "smart"
+      ],
+      "no-console": "warn",
+      "quotes": [
+          "error",
+          "single"
+      ],
+      "no-empty-function": "error",
+      "no-floating-decimal": "error",
+      "no-implied-eval": "error",
+      "no-lone-blocks": "error",
+      "no-multi-spaces": "error",
+      "no-return-assign": "error",
+      "no-return-await": "error",
+      "no-self-compare": "error",
+      "no-throw-literal": "error",
+      "semi-spacing": "error",
+      "no-useless-return": "error",
+      "yoda": "error",
+      "new-cap": "off",
+      "no-label-var": "error",
+      "semi": "error",
+      "space-before-blocks": "error",
+      "space-in-parens": "error",
+      "space-infix-ops": "error",
+      "space-unary-ops": "error",
+      "spaced-comment": "error",
+      "keyword-spacing": "error",
+      "arrow-spacing": "error",
+      "no-duplicate-imports": "error",
+      "no-useless-computed-key": "error",
+      "no-useless-constructor": "error",
+      "prefer-const": "error",
+      "prefer-arrow-callback": "error",
+      "prefer-rest-params": "error",
+      "prefer-template": "error",
+      "rest-spread-spacing": "error"
+    }
+  }

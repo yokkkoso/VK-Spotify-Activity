@@ -1,16 +1,20 @@
 {
   "name": "vk-spotify-integration",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Integrate Spotify current playing song to VK status",
+  "main": "./src/index.js",
   "author": "yokkkoso",
   "license": "MIT",
   "scripts": {
-    "get-refresh-token": "node get-refresh-token.js"
+    "get-refresh-token": "node ./src/get-refresh-token.js",
+    "lint": "eslint ./src"
   },
   "dependencies": {
-    "axios": "^0.21.1",
     "dotenv": "^8.2.0",
-    "easyvk": "^2.8.2"
+    "easyvk": "^2.8.2",
+    "node-fetch": "^2.6.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.20.0"
   }
 }
